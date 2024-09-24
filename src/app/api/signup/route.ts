@@ -2,7 +2,8 @@ import bcrypt from "bcryptjs";
 import { MongoClient } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
-const clientPromise = MongoClient.connect(process.env.MONGODB_URI);
+const mongodbUri = process.env.MONGODB_URI || ""; // Provide a default value if the environment variable is undefined
+const clientPromise = MongoClient.connect(mongodbUri);
 
 export async function POST(req: NextRequest) {
   try {

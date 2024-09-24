@@ -106,7 +106,7 @@ const SignupPage = () => {
               style={{ backgroundColor: "#90579F" }}
               className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              S'inscrire
+              S&apos;inscrire
             </button>
           </form>
 
