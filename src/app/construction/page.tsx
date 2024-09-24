@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import TopBar from "@/app/components/topBar";
 import Image from "next/image";
 

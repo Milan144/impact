@@ -12,4 +12,7 @@ const nextConfig = withPWA({
     },
 });
 
-module.exports = nextConfig;
+module.exports = {
+    swcMinify: false,
+    ...nextConfig,
+}

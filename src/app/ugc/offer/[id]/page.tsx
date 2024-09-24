@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
 import Image from "next/image";
@@ -10,8 +11,8 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { checkTokenValidity } from "../../../../../lib/token_ugc"; // Importer la fonction de validation du token
+import { useRouter } from "next/navigation";
+import { checkTokenValidity, getCookie } from "../../../../../lib/token_ugc"; // Importer la fonction de validation du token
 
 export default function Offer({ params }: { params: { id: string } }) {
   const [offer, setOffer] = useState<offer | null>(null);
@@ -31,7 +32,10 @@ export default function Offer({ params }: { params: { id: string } }) {
   // Vérification du token
   useEffect(() => {
     const validateToken = async () => {
-      const isValid = await checkTokenValidity();
+      const token = getCookie("token"); // Retrieve token from cookies
+      const secret = process.env.JWT_SECRET as string; // Ensure the JWT_SECRET is available
+      const type = getCookie("type"); // Retrieve user type
+      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
       if (!isValid) {
         router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
       } else {

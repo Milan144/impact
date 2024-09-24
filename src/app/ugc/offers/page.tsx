@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import React, { useEffect, useState } from "react";
 import "../../globals.css";
 import Image from "next/image";
@@ -14,8 +15,8 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useRouter } from "next/router";
-import { checkTokenValidity } from "../../../../lib/token_ugc"; // Fonction pour valider le token
+import { useRouter } from "next/navigation";
+import { checkTokenValidity, getCookie } from "../../../../lib/token_ugc"; // Fonction pour valider le token
 
 const App = () => {
   const [offers, setOffers] = useState("");
@@ -34,7 +35,10 @@ const App = () => {
   // Vérification du token
   useEffect(() => {
     const validateToken = async () => {
-      const isValid = await checkTokenValidity();
+      const token = getCookie("token"); // Retrieve token from cookies
+      const secret = process.env.JWT_SECRET as string; // Ensure the JWT_SECRET is available
+      const type = getCookie("type"); // Retrieve user type
+      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
       if (!isValid) {
         router.replace("/login"); // Redirection si le token est invalide
       } else {

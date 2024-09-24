@@ -1,9 +1,12 @@
-"use client";
+'use client';
+
 import { SetStateAction, useState } from "react";
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
+import { useRouter } from "next/navigation";
 
 const SignupWithSiretPage = () => {
+  const router = useRouter();
   // State pour le SIRET
   const [siret, setSiret] = useState("");
   const [data, setData] = useState(null);
@@ -87,7 +90,7 @@ const SignupWithSiretPage = () => {
 
       setSuccess(true);
       setTimeout(() => {
-        window.location.href = "/entreprise/home";
+        router.push("/entreprise/home");
       }, 1000);
     } catch (error) {
       setSignupError("Erreur lors de l'inscription");
@@ -282,7 +285,7 @@ const SignupWithSiretPage = () => {
                 style={{ backgroundColor: "#90579F" }}
                 className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                S'inscrire
+                S&apos;inscrire
               </button>
             </form>
 

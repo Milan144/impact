@@ -1,12 +1,13 @@
-"use client";
+'use client';
+
 import "../../globals.css";
 import Image from "next/image";
 import Navbar from "../../components/navbar";
 import TopBar from "../../components/topBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { checkTokenValidity } from "../../../../lib/token"; // Import de la fonction de validation du token
+import { useRouter } from "next/navigation";
+import { checkTokenValidity, getCookie } from "../../../../lib/token"; // Import de la fonction de validation du token
 
 const Stats = () => {
   const [loading, setLoading] = useState(true); // État de chargement pour le loader
@@ -15,7 +16,10 @@ const Stats = () => {
   // Vérification si l'utilisateur est connecté
   useEffect(() => {
     const validateToken = async () => {
-      const isValid = await checkTokenValidity();
+      const token = getCookie("token"); // Retrieve token from cookies
+      const secret = process.env.JWT_SECRET as string; // Ensure the JWT_SECRET is available
+      const type = getCookie("type"); // Retrieve user type
+      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
       if (!isValid) {
         router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
       } else {

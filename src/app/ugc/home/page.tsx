@@ -1,3 +1,4 @@
+'use client';
 import DemoRequestPopup from '../../components/demoRequestPopup';
 import TopBar from '@/app/components/topBar';
 import Navbar from '@/app/components/navbar'

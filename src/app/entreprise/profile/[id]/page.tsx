@@ -1,11 +1,12 @@
-"use client";
+'use client';
+
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
-import { useRouter } from "next/router";
-import { checkTokenValidity } from "../../../../../lib/token"; // Fonction de vérification du token
+import { useRouter } from "next/navigation";
+import { checkTokenValidity, getCookie } from "../../../../../lib/token"; // Fonction de vérification du token
 
 export default function Entreprise({ params }: { params: { id: string } }) {
   const [entrepriseData, setEntrepriseData] = useState<Entreprise | null>(null);
@@ -23,7 +24,10 @@ export default function Entreprise({ params }: { params: { id: string } }) {
   // Vérification du token utilisateur
   useEffect(() => {
     const validateToken = async () => {
-      const isValid = await checkTokenValidity();
+      const token = getCookie("token"); // Retrieve token from cookies
+      const secret = process.env.JWT_SECRET as string; // Ensure the JWT_SECRET is available
+      const type = getCookie("type"); // Retrieve user type
+      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
       if (!isValid) {
         router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
       } else {

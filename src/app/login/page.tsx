@@ -1,18 +1,23 @@
 "use client";
+
 import { useState } from "react";
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   // Get param /login?type=ugc
-  const urlParams = new URLSearchParams(window.location.search);
-  const type = urlParams.get("type");
-
+  const urlParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
+  const type = urlParams !== null ? urlParams.get("type") : null;
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
@@ -41,7 +46,7 @@ const LoginPage = () => {
       if (data.success) {
         setSuccess(true);
         setTimeout(() => {
-          window.location.href = type === "ugc" ? "/ugc/offers" : "/entreprise/offers";
+          router.push(type === "ugc" ? "/ugc/offers" : "/entreprise/offers");
         }, 1000);
       } else {
         setError("Email ou mot de passe incorrect");

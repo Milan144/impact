@@ -1,4 +1,5 @@
-  "use client";
+  'use client';
+
   import { SetStateAction, useState } from "react";
   import Navbar from "@/app/components/navbar";
   import TopBar from "@/app/components/topBar";

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import clientPromise from "../../../../lib/mongodb";
-import jwt from "jsonwebtoken"; // Assurez-vous d'avoir installé jsonwebtoken
+import jwt from "jsonwebtoken";
 
-const SECRET_KEY = process.env.JWT_SECRET || "votre_clé_secrète"; // Assurez-vous d'utiliser une clé secrète sécurisée
+const SECRET_KEY = process.env.JWT_SECRET || "votre_clé_secrète";
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();

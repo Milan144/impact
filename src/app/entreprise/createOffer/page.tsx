@@ -1,10 +1,10 @@
-"use client";
+'use client';
+
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
-import { checkTokenValidity } from "../../../../lib/token"; // Import de la fonction de validation
-
+import { checkTokenValidity, getCookie } from "../../../../lib/token"; // Import de la fonction de validation
+import { useRouter } from "next/navigation";
 const AddOfferPage = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -20,7 +20,10 @@ const AddOfferPage = () => {
   // Vérification si l'utilisateur est connecté
   useEffect(() => {
     const validateToken = async () => {
-      const isValid = await checkTokenValidity();
+      const token = getCookie("token"); // Retrieve token from cookies
+      const secret = process.env.JWT_SECRET as string; // Ensure the JWT_SECRET is available
+      const type = getCookie("type"); // Retrieve user type
+      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
       if (!isValid) {
         router.replace("/login");
       } else {
@@ -99,7 +102,7 @@ const AddOfferPage = () => {
           <div>
             <div>
               <label htmlFor="idEntreprise" className="block font-bold">
-                Titre de l'offre
+                Titre de l&apos;offre
               </label>
               <input
                 type="text"
@@ -165,7 +168,7 @@ const AddOfferPage = () => {
             type="submit"
             className="bg-indigo-500 text-white px-4 py-2 rounded"
           >
-            Ajouter l'offre
+            Ajouter l&apos;offre
           </button>
         </form>
       </div>

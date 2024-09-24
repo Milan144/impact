@@ -1,20 +1,24 @@
 import jwt from 'jsonwebtoken';
 
-function checkTokenValidity(): boolean {
-    const token = getCookie('token');
+function checkTokenValidity(token: string | null, secret: string, type: string | null, router: any): boolean {
+    if (!secret) {
+        throw new Error('JWT_SECRET is not defined');
+    }
+
     if (token) {
         try {
-            jwt.verify(token, process.env.JWT_SECRET);
-            // Then if valid, get the cookie type
-            const type = getCookie('type');
+            jwt.verify(token, secret);
+            // If the token is valid, check the user type
             if (type === 'entreprise') {
-                return true;
-            } else window.location.href = '/ugc/home';
+                return true; // The user is an entreprise
+            } else {
+                router.push('/entreprise/home'); // Redirect if the user is not an entreprise
+            }
         } catch (error) {
-            return false;
+            return false; // Token is invalid
         }
     }
-    return false;
+    return false; // No token found
 }
 
 function getCookie(name: string): string | null {
@@ -28,4 +32,4 @@ function getCookie(name: string): string | null {
     return null;
 }
 
-export { checkTokenValidity };
+export { checkTokenValidity, getCookie };

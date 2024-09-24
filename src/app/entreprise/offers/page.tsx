@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import React, { useEffect, useState } from "react";
 import "../../globals.css";
 import Image from "next/image";
@@ -14,9 +15,11 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { checkTokenValidity } from "../../../../lib/token";
+import { checkTokenValidity, getCookie } from "../../../../lib/token";
+import { useRouter } from "next/navigation";
 
 const App = () => {
+  const router = useRouter();
   const [offers, setOffers] = useState("");
   const [archivedOffers, setArchivedOffers] = useState("");
   const [loading, setLoading] = useState(true);
@@ -34,7 +37,10 @@ const App = () => {
 
   useEffect(() => {
     const validateToken = async () => {
-      const isValid = await checkTokenValidity();
+      const token = getCookie("token"); // Retrieve token from cookies
+      const secret = process.env.JWT_SECRET as string; // Ensure the JWT_SECRET is available
+      const type = getCookie("type"); // Retrieve user type
+      const isValid = await checkTokenValidity(token, secret, type, router); // Pass router as an argument
       if (!isValid) {
         window.location.replace("/login");
       } else {

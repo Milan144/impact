@@ -1,23 +1,24 @@
-'use client';
+"use client";
 import Image from "next/image";
 import logo from "./logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-
-const redirect = () => {
-  window.location.href = "/";
-}
+import { useRouter } from "next/navigation";
 
 const TopBar = () => {
+  const router = useRouter(); // Move the useRouter hook inside the component
 
   const [path, setPath] = useState("");
+
+  const redirect = () => {
+    router.push("/"); // You can now use router.push here
+  };
 
   useEffect(() => {
     setPath(window.location.pathname);
   }, []);
-
 
   return (
     <div
@@ -30,7 +31,7 @@ const TopBar = () => {
         className="absolute left-8 w-1/10 h-auto filter invert"
         width={100}
         height={100}
-        onClick={redirect}
+        onClick={redirect} // onClick will use redirect function
       />
       <div className="ml-auto flex space-x-4">
         {path.startsWith("/ugc") && (
@@ -39,7 +40,7 @@ const TopBar = () => {
               <FontAwesomeIcon icon={faSearch} />
             </span>
           </Link>
-        )} 
+        )}
         <Link href="/construction">
           <span className="text-2xl">
             <FontAwesomeIcon icon={faHeart} />
