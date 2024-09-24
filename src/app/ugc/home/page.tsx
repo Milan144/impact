@@ -1,4 +1,3 @@
-"use client"
 import DemoRequestPopup from '../../components/demoRequestPopup';
 import TopBar from '@/app/components/topBar';
 import Navbar from '@/app/components/navbar'
@@ -39,6 +38,14 @@ export default function HomeUgc() {
                                     style={{ flex: 1 }} 
                                 >
                                     Commencer l&apos;inscription
+                                </button>
+                            </Link>
+                            <Link href="/login?type=ugc">
+                                <button
+                                    className="border border-white py-2 px-4 text-white bg-transparent hover:bg-white hover:text-black transition duration-300"
+                                    style={{ flex: 1 }} 
+                                >
+                                    Se connecter
                                 </button>
                             </Link>
                         </div>

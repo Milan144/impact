@@ -64,6 +64,11 @@ const SignupWithSiretPage = () => {
       return;
     }
 
+    if (password.length < 8) {
+      setSignupError("Le mot de passe doit contenir au moins 8 caractères");
+      return;
+    }
+
     // Déterminer le type d'utilisateur à partir de l'URL
     const userType = window.location.pathname.includes("/ugc/signup")
       ? "ugc"
@@ -81,6 +86,9 @@ const SignupWithSiretPage = () => {
       if (!response.ok) throw new Error("Erreur lors de l'inscription");
 
       setSuccess(true);
+      setTimeout(() => {
+        window.location.href = "/entreprise/home";
+      }, 1000);
     } catch (error) {
       setSignupError("Erreur lors de l'inscription");
     }
@@ -118,16 +126,18 @@ const SignupWithSiretPage = () => {
               </button>
             </form>
 
+            {/* Affichage des erreurs et des liens utiles */}
             {error && (
               <div className="mt-4 text-center">
-                <p className="text-red-500 text-center">{error}</p>
+                <p className="text-red-500">{error}</p>
                 <div className="mt-6">
-                  <h1 className="mb-10">
+                  <h1 className="mb-6">
                     Vous devez disposer d&apos;un numéro de SIRET valide pour
                     continuer. Voici quelques liens utiles pour vous aider à
-                    créer votre entreprise.
+                    créer votre entreprise ainsi que des tutoriels vidéo.
                   </h1>
-                  <ul className="flex flex-col items-center">
+
+                  <ul className="flex flex-col items-center space-y-2">
                     <li>
                       <a
                         href="https://www.service-public.fr/creation-entreprise"
@@ -169,6 +179,28 @@ const SignupWithSiretPage = () => {
                       </a>
                     </li>
                   </ul>
+
+                  <div className="mt-8 space-y-6">
+                    <h2 className="text-lg font-semibold">Tutoriels vidéos</h2>
+                    <iframe
+                      width="560"
+                      height="315"
+                      src="https://www.youtube.com/embed/5tdgDKq8PKg?si=Ecv9B4Zcy457bb32"
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    ></iframe>
+                    <iframe
+                      width="560"
+                      height="315"
+                      src="https://www.youtube.com/embed/qvALCDo8iOY?si=oenCUnhaM-Xqp6B8"
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
                 </div>
               </div>
             )}
@@ -192,6 +224,8 @@ const SignupWithSiretPage = () => {
             )}
           </div>
         )}
+
+        {/* Étape 2: Formulaire d'inscription (affiché après validation du SIRET) */}
         {validated && (
           <div className="mt-6 w-full max-w-md p-6 rounded-lg">
             <h2 className="text-xl font-bold mb-4 text-center">
@@ -248,7 +282,7 @@ const SignupWithSiretPage = () => {
                 style={{ backgroundColor: "#90579F" }}
                 className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                S&apos;inscrire
+                S'inscrire
               </button>
             </form>
 

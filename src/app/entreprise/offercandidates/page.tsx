@@ -11,39 +11,58 @@ import {
   faHeart,
   faSort,
   faStar,
-  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useRouter } from "next/router";
+import { checkTokenValidity } from "../../../../lib/token"; // Fonction de validation du token
 
 const App = () => {
   const [offers, setOffers] = useState("");
   const [archivedOffers, setArchivedOffers] = useState("");
+  const [loading, setLoading] = useState(true); // Ajout de l'état pour le chargement
+  const router = useRouter();
 
-  interface offer {
-    id: string;
-    name: string;
-    description: string;
-    category: string;
-    reward: string;
-    archived: string;
-    title: string;
-    type: string;
-  }
-
-  // Fetching offers
+  // Vérification du token de l'utilisateur
   useEffect(() => {
-    const fetchEntreprise = async () => {
-      const responseOffres = await fetch(`/api/offersentreprise?id=1`);
-      const responseArchivedOffres = await fetch(
-        `/api/offersentreprise?id=1&archived=true`
-      );
-      const dataOffres = await responseOffres.json();
-      const dataArchivedOffres = await responseArchivedOffres.json();
-      setOffers(dataOffres);
-      setArchivedOffers(dataArchivedOffres);
+    const validateToken = async () => {
+      const isValid = await checkTokenValidity();
+      if (!isValid) {
+        router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
+      } else {
+        setLoading(false); // Arrêter le chargement si l'utilisateur est validé
+      }
     };
-    fetchEntreprise();
-  }, []);
+    validateToken();
+  }, [router]);
+
+  // Fetching offers après vérification du token
+  useEffect(() => {
+    if (!loading) {
+      const fetchEntreprise = async () => {
+        const responseOffres = await fetch(`/api/offersentreprise?id=1`);
+        const responseArchivedOffres = await fetch(
+          `/api/offersentreprise?id=1&archived=true`
+        );
+        const dataOffres = await responseOffres.json();
+        const dataArchivedOffres = await responseArchivedOffres.json();
+        setOffers(dataOffres);
+        setArchivedOffers(dataArchivedOffres);
+      };
+      fetchEntreprise();
+    }
+  }, [loading]);
+
+  // Loader pendant la vérification du token
+  if (loading) {
+    return (
+      <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+        <h2 className="text-center text-white text-xl font-semibold">
+          Chargement...
+        </h2>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -158,7 +177,10 @@ const App = () => {
                             <FontAwesomeIcon icon={faStar} />
                           </span>
                           <span>
-                            <FontAwesomeIcon icon={faStar} className="text-gray-300" />
+                            <FontAwesomeIcon
+                              icon={faStar}
+                              className="text-gray-300"
+                            />
                           </span>
                         </span>
                         <span className="text-xs text-gray-600 ml-2">
@@ -336,7 +358,10 @@ const App = () => {
                             <FontAwesomeIcon icon={faStar} />
                           </span>
                           <span>
-                            <FontAwesomeIcon icon={faStar} className="text-gray-300" />
+                            <FontAwesomeIcon
+                              icon={faStar}
+                              className="text-gray-300"
+                            />
                           </span>
                         </span>
                         <span className="text-xs text-gray-600 ml-2">

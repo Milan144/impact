@@ -4,8 +4,42 @@ import Image from "next/image";
 import Navbar from "../../components/navbar";
 import TopBar from "../../components/topBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { checkTokenValidity } from "../../../../lib/token"; // Import de la fonction de validation du token
 
 const Stats = () => {
+  const [loading, setLoading] = useState(true); // État de chargement pour le loader
+  const router = useRouter();
+
+  // Vérification si l'utilisateur est connecté
+  useEffect(() => {
+    const validateToken = async () => {
+      const isValid = await checkTokenValidity();
+      if (!isValid) {
+        router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
+      } else {
+        setLoading(false); // Arrêter le chargement si le token est valide
+      }
+    };
+    validateToken();
+  }, [router]);
+
+  // Affichage du loader pendant la vérification du token
+  if (loading) {
+    return (
+      <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+        <h2 className="text-center text-white text-xl font-semibold">
+          Chargement...
+        </h2>
+        <p className="w-1/3 text-center text-white">
+          Les statistiques sont en cours de chargement, veuillez patienter.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <TopBar />
@@ -22,13 +56,20 @@ const Stats = () => {
             height={1000}
             className="h-48 w-full object-cover md:w-full"
             src={`/img/stats.jpg`}
-            alt="Restaurant image"
+            alt="Statistiques image"
           />
         </div>
         <br />
-        <h3 className="font-bold text-center text-black">Nombre total d&apos;impressions : <span className="text-green-500">5,773</span></h3>
-        <h3 className="font-bold text-center text-black">Nombre total de clics : <span className="text-green-500">3,773</span></h3>
-        <h3 className="font-bold text-center text-black">Nombre total de vues : <span className="text-green-500">2,773</span></h3>
+        <h3 className="font-bold text-center text-black">
+          Nombre total d&apos;impressions :{" "}
+          <span className="text-green-500">5,773</span>
+        </h3>
+        <h3 className="font-bold text-center text-black">
+          Nombre total de clics : <span className="text-green-500">3,773</span>
+        </h3>
+        <h3 className="font-bold text-center text-black">
+          Nombre total de vues : <span className="text-green-500">2,773</span>
+        </h3>
       </div>
     </div>
   );

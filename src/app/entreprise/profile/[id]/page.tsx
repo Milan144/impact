@@ -4,10 +4,14 @@ import Head from "next/head";
 import Image from "next/image";
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
+import { useRouter } from "next/router";
+import { checkTokenValidity } from "../../../../../lib/token"; // Fonction de vérification du token
 
 export default function Entreprise({ params }: { params: { id: string } }) {
   const [entrepriseData, setEntrepriseData] = useState<Entreprise | null>(null);
   const [offres, setOffres] = useState("");
+  const [loading, setLoading] = useState(true); // État de chargement
+  const router = useRouter();
 
   interface Entreprise {
     name: string;
@@ -16,20 +20,51 @@ export default function Entreprise({ params }: { params: { id: string } }) {
     code: string;
   }
 
-  // Getting the profile
+  // Vérification du token utilisateur
   useEffect(() => {
-    const fetchEntreprise = async () => {
-      const response = await fetch(`/api/entreprise?id=${params.id}`);
-      const data = await response.json();
-      setEntrepriseData(data);
-      const responseOffres = await fetch(
-        `/api/offersentreprise?id=${params.id}`
-      );
-      const dataOffres = await responseOffres.json();
-      setOffres(dataOffres);
+    const validateToken = async () => {
+      const isValid = await checkTokenValidity();
+      if (!isValid) {
+        router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
+      } else {
+        setLoading(false); // Charger les données après validation
+      }
     };
-    fetchEntreprise();
-  }, [params.id]);
+    validateToken();
+  }, [router]);
+
+  // Récupération des données de l'entreprise et des offres
+  useEffect(() => {
+    if (!loading) {
+      const fetchEntreprise = async () => {
+        const response = await fetch(`/api/entreprise?id=${params.id}`);
+        const data = await response.json();
+        setEntrepriseData(data);
+        const responseOffres = await fetch(
+          `/api/offersentreprise?id=${params.id}`
+        );
+        const dataOffres = await responseOffres.json();
+        setOffres(dataOffres);
+      };
+      fetchEntreprise();
+    }
+  }, [loading, params.id]);
+
+  // Loader pendant la vérification du token et le chargement des données
+  if (loading) {
+    return (
+      <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+        <h2 className="text-center text-white text-xl font-semibold">
+          Chargement...
+        </h2>
+        <p className="w-1/3 text-center text-white">
+          Les données sont en cours de chargement, veuillez patienter.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -78,25 +113,25 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                   </div>
                 </div>
               </div>
-              {entrepriseData && typeof entrepriseData === "object" && (
+              {entrepriseData && (
                 <>
                   <div className="text-center mt-12">
                     <h2 className="text-xl font-semibold leading-normal mb-2 text-gray-800">
-                      {entrepriseData && entrepriseData.name}
+                      {entrepriseData.name}
                     </h2>
                     <div className="mb-2 text-gray-800 mt-10">
                       <i className="fas fa-briefcase mr-2 text-lg text-gray-800"></i>
                       Paris, France
                     </div>
                     <p className="mb-4 text-lg leading-relaxed text-gray-800">
-                      {(entrepriseData as Entreprise)?.description}
+                      {entrepriseData.description}
                     </p>
                     <br />
                     <h1 className="mb-4 text-lg leading-relaxed text-gray-800">
                       Mes offres
                     </h1>
                     {Array.isArray(offres) && offres.length > 0 ? (
-                      offres.map((offre) => (
+                      offres.map((offre: any) => (
                         <div
                           key={offre.name}
                           className="mt-10 py-10 border-t border-blueGray-200 text-center"
@@ -120,15 +155,8 @@ export default function Entreprise({ params }: { params: { id: string } }) {
                         </div>
                       ))
                     ) : (
-                      <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
-                        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-                        <h2 className="text-center text-white text-xl font-semibold">
-                          Loading...
-                        </h2>
-                        <p className="w-1/3 text-center text-white">
-                          Les offres sont en cours de chargement, veuillez
-                          rester sur cette page.
-                        </p>
+                      <div className="text-center text-gray-600">
+                        Aucune offre disponible
                       </div>
                     )}
                   </div>

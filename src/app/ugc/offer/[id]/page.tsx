@@ -10,10 +10,14 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { checkTokenValidity } from "../../../../../lib/token_ugc"; // Importer la fonction de validation du token
 
 export default function Offer({ params }: { params: { id: string } }) {
-  const [offer, setOffer] = useState<offer| null>(null);
-  const [loading, setLoading] = useState(true);
+  const [offer, setOffer] = useState<offer | null>(null);
+  const [loading, setLoading] = useState(true); // Pour gérer l'état du chargement
+  const [validatingToken, setValidatingToken] = useState(true); // État de validation du token
+  const router = useRouter();
 
   interface offer {
     name: string;
@@ -24,22 +28,52 @@ export default function Offer({ params }: { params: { id: string } }) {
     code: string;
   }
 
-  // Getting the offer
+  // Vérification du token
   useEffect(() => {
-    const fetchOffer = async () => {
-      setLoading(true);
-      const response = await fetch(`/api/offer?id=${params.id}`);
-      const data = await response.json();
-      setOffer(data);
-      setLoading(false);
+    const validateToken = async () => {
+      const isValid = await checkTokenValidity();
+      if (!isValid) {
+        router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
+      } else {
+        setValidatingToken(false); // Le token est valide, arrêter la validation
+      }
     };
-    fetchOffer();
-  }, [params.id]);
+    validateToken();
+  }, [router]);
+
+  // Récupération des offres après validation du token
+  useEffect(() => {
+    if (!validatingToken) {
+      const fetchOffer = async () => {
+        setLoading(true);
+        const response = await fetch(`/api/offer?id=${params.id}`);
+        const data = await response.json();
+        setOffer(data);
+        setLoading(false);
+      };
+      fetchOffer();
+    }
+  }, [params.id, validatingToken]);
+
+  // Affichage du loader pendant la validation du token et le chargement de l'offre
+  if (validatingToken || loading) {
+    return (
+      <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+        <h2 className="text-center text-white text-xl font-semibold">
+          Chargement...
+        </h2>
+        <p className="w-1/3 text-center text-white">
+          L&apos;offre est en train de charger, cela peut prendre quelques
+          secondes, veuillez garder la page ouverte.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <TopBar />
-      {!loading ? (
-        <>
       <div>
         <div className="relative">
           <Image
@@ -132,19 +166,6 @@ export default function Offer({ params }: { params: { id: string } }) {
           <a href="#">J&apos;entre en contact avec l&apos;entreprise</a>
         </div>
       </div>
-      </>
-      ) : (
-              <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
-                <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-                <h2 className="text-center text-white text-xl font-semibold">
-                  Chargement...
-                </h2>
-                <p className="w-1/3 text-center text-white">
-                  L&apos; offre est en train de charger, cela peut prendre
-                  quelques secondes, veuillez garder la page ouverte.
-                </p>
-              </div>
-            )}
       <Navbar />
     </>
   );

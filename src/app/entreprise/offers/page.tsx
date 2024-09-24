@@ -14,10 +14,12 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { checkTokenValidity } from "../../../../lib/token";
 
 const App = () => {
   const [offers, setOffers] = useState("");
   const [archivedOffers, setArchivedOffers] = useState("");
+  const [loading, setLoading] = useState(true);
 
   interface offer {
     id: string;
@@ -30,22 +32,44 @@ const App = () => {
     type: string;
   }
 
-  // Fetching offers
   useEffect(() => {
-    const fetchEntreprise = async () => {
-      const responseOffres = await fetch(
-        `/api/offersentreprise?id=1`
-      );
-      const responseArchivedOffres = await fetch(
-        `/api/offersentreprise?id=1&archived=true`
-      );
-      const dataOffres = await responseOffres.json();
-      const dataArchivedOffres = await responseArchivedOffres.json();
-      setOffers(dataOffres);
-      setArchivedOffers(dataArchivedOffres);
+    const validateToken = async () => {
+      const isValid = await checkTokenValidity();
+      if (!isValid) {
+        window.location.replace("/login");
+      } else {
+        setLoading(false);
+      }
     };
-    fetchEntreprise();
+    validateToken();
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      const fetchEntreprise = async () => {
+        const responseOffres = await fetch(`/api/offersentreprise?id=1`);
+        const responseArchivedOffres = await fetch(
+          `/api/offersentreprise?id=1&archived=true`
+        );
+        const dataOffres = await responseOffres.json();
+        const dataArchivedOffres = await responseArchivedOffres.json();
+        setOffers(dataOffres);
+        setArchivedOffers(dataArchivedOffres);
+      };
+      fetchEntreprise();
+    }
+  }, [loading]);
+
+  if (loading) {
+    return (
+      <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+        <h2 className="text-center text-white text-xl font-semibold">
+          Chargement...
+        </h2>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -64,15 +88,15 @@ const App = () => {
           />
         </div>
         <div className="flex justify-between items-center">
-            <h3 className="text-gray-900 text-xl font-bold">
-                Vos annonces en ligne
-            </h3>
-            <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
-                <span className="text-gray-600">
-                    <FontAwesomeIcon icon={faSort} />
-                </span>{" "}
-                Trier
-            </button>
+          <h3 className="text-gray-900 text-xl font-bold">
+            Vos annonces en ligne
+          </h3>
+          <button className="text-black border border-black bg-transparent px-2 py-1 flex items-center rounded-full">
+            <span className="text-gray-600">
+              <FontAwesomeIcon icon={faSort} />
+            </span>{" "}
+            Trier
+          </button>
         </div>
         <div className="flex justify-between">
           <ul
@@ -81,7 +105,10 @@ const App = () => {
           >
             {Array.isArray(offers) && offers.length > 0 ? (
               offers.map((offer, index) => (
-                <div key={index} className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full">
+                <div
+                  key={index}
+                  className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full"
+                >
                   <div className="md:flex">
                     <div className="md:flex-shrink-0 h-48 md:h-auto">
                       <Image
@@ -97,22 +124,26 @@ const App = () => {
                         <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
                           {offer.title}
                         </div>
-                        <div className="mt-2 text-gray-400">
-                          {offer.type}
-                        </div>
-                        <Link key={offer.id} href={`/entreprise/offercandidates`}>
-                        <button
-                          style={{ backgroundColor: "#90579F" }}
-                          className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md mt-2"
+                        <div className="mt-2 text-gray-400">{offer.type}</div>
+                        <Link
+                          key={offer.id}
+                          href={`/entreprise/offercandidates`}
                         >
-                          Voir les candidats
-                        </button>
+                          <button
+                            style={{ backgroundColor: "#90579F" }}
+                            className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md mt-2"
+                          >
+                            Voir les candidats
+                          </button>
                         </Link>
                       </div>
                       <div className="flex flex-col items-center justify-center ml-4 relative">
                         <div className="rounded-full bg-gray-200 border-2 border-purple-600 p-2 w-10 h-10 flex items-center justify-center relative">
                           <FontAwesomeIcon icon={faUser} />
-                          <div style={{ backgroundColor: "#90579F" }} className="rounded-full text-white text-xs absolute bottom-0 right-0 mb-[-2] mr-[-2] w-4 h-4 flex items-center justify-center">
+                          <div
+                            style={{ backgroundColor: "#90579F" }}
+                            className="rounded-full text-white text-xs absolute bottom-0 right-0 mb-[-2] mr-[-2] w-4 h-4 flex items-center justify-center"
+                          >
                             3
                           </div>
                         </div>
@@ -125,16 +156,14 @@ const App = () => {
                 </div>
               ))
             ) : (
-              <h3>
-                Vous n&apos;avez pas d&apos;annonces en ligne
-              </h3>
+              <h3>Vous n&apos;avez pas d&apos;annonces en ligne</h3>
             )}
           </ul>
         </div>
         <div className="flex justify-between items-center">
-            <h3 className="text-gray-900 text-xl font-bold">
-                Vos anciennes annonces
-            </h3>
+          <h3 className="text-gray-900 text-xl font-bold">
+            Vos anciennes annonces
+          </h3>
         </div>
         <div className="flex justify-between">
           <ul
@@ -143,7 +172,10 @@ const App = () => {
           >
             {Array.isArray(archivedOffers) && archivedOffers.length > 0 ? (
               archivedOffers.map((offer, index) => (
-                <div key={index} className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full">
+                <div
+                  key={index}
+                  className="mx-auto bg-white rounded-lg shadow-md overflow-hidden md:max-w-2xl lg:max-w-3xl xl:max-w-4xl m-5 w-full"
+                >
                   <div className="md:flex">
                     <div className="md:flex-shrink-0 h-48 md:h-auto">
                       <Image
@@ -159,16 +191,14 @@ const App = () => {
                         <div className="uppercase tracking-wide text-sm text-gray-600 font-semibold">
                           {offer.title}
                         </div>
-                        <div className="mt-2 text-gray-400">
-                          {offer.type}
-                        </div>
+                        <div className="mt-2 text-gray-400">{offer.type}</div>
                         <Link key={offer.id} href={`/entreprise/stats`}>
-                        <button
-                          style={{ backgroundColor: "#90579F" }}
-                          className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md mt-2"
-                        >
-                          Voir les statistiques
-                        </button>
+                          <button
+                            style={{ backgroundColor: "#90579F" }}
+                            className="hover:bg-indigo-700 text-white font-bold py-1 px-2 text-xs rounded-md mt-2"
+                          >
+                            Voir les statistiques
+                          </button>
                         </Link>
                       </div>
                       <div className="flex flex-col items-center justify-center ml-4 relative">
@@ -190,9 +220,7 @@ const App = () => {
                 </div>
               ))
             ) : (
-              <h3>
-                Vous n&apos;avez pas d&apos;anciennes annonces
-              </h3>
+              <h3>Vous n&apos;avez pas d&apos;anciennes annonces</h3>
             )}
           </ul>
         </div>
