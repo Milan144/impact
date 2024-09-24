@@ -6,16 +6,16 @@ import TopBar from "@/app/components/topBar";
 const SiretPage = () => {
   const [siret, setSiret] = useState("");
   const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [validated, setValidated] = useState(false); // Ajout pour afficher la validation
 
   const handleChange = (e: { target: { value: SetStateAction<string> } }) => {
     setSiret(e.target.value);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     setData(null);
     setValidated(false);
 
@@ -79,7 +79,7 @@ const SiretPage = () => {
           {/* Affichage des résultats */}
           {data && (
             <div className="mt-4 p-4 bg-gray-100 rounded-lg text-center">
-              <h2 className="text-lg font-semibold">Nom de l'entreprise</h2>
+              <h2 className="text-lg font-semibold">Nom de l&apos;entreprise</h2>
               <pre className="text-sm text-gray-700">
                 {JSON.stringify(data["etablissement"]["uniteLegale"]["denominationUniteLegale"], null, 2)}
               </pre>
