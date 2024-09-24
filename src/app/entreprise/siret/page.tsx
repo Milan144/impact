@@ -37,7 +37,7 @@ const SiretPage = () => {
   return (
     <>
       <TopBar />
-      <div className="flex flex-col items-center min-h-screen bg-gray-200">
+      <div className="flex flex-col items-center bg-gray-200">
         {/* Container principal */}
         {/* Formulaire de recherche SIRET */}
         <div className="mt-6 w-full max-w-md p-6 rounded-lg">
