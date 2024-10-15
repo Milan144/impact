@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 
 function checkTokenValidity(token: string | null, secret: string, type: string | null, router: any): boolean {
-    if (!secret) {
-        throw new Error('JWT_SECRET is not defined'); // Ensure secret is defined
-    }
+    // if (!secret) {
+    //     throw new Error('JWT_SECRET is not defined'); // Ensure secret is defined
+    // }
 
     if (token) {
         try {
