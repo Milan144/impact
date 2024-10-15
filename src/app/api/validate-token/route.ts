@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
-const secret = process.env.JWT_SECRET as string;
+const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string;
 
 export async function POST(req: NextRequest) {
     // Vérifie que la méthode est POST
