@@ -1,39 +1,34 @@
 import jwt from 'jsonwebtoken';
 
-function checkTokenValidity(token: string | null, secret: string, type: string | null, router: any): boolean {
-    if (token) {
+function checkTokenValidity(token: string | undefined, secret: string, type: string | undefined, router: any): boolean {
+    if (token && secret) {
+        console.log('token', token);
+        console.log('secret', secret);
         try {
-            jwt.verify(token, secret); // Vérifie si le token est valide
-            console.log("Token valide");
-
-            if (type === 'entreprise') {
-                console.log("Type d'utilisateur: entreprise");
-                return true; // L'utilisateur est bien une entreprise
+            jwt.verify(token, secret);
+            if (type === 'ugc') {
+                return true;
             } else {
-                console.log("Type d'utilisateur différent, redirection...");
-                router.push('/entreprise/home'); // Redirige si ce n'est pas une entreprise
+                router.push('/entreprise/home');
             }
         } catch (error) {
-            console.error("Erreur de validation du token :", error);
-            return false; // Le token est invalide
+            return false;
         }
-    } else {
-        console.log("Token non trouvé");
     }
-    return false; // Aucun token trouvé
+    return false;
 }
 
-function getCookie(name: string): string | null {
-    const cookies = document.cookie.split(';');
-    console.log("Cookies:", document.cookie);
-    console.log("Cookies:", cookies);
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        console.log("Cookie:", cookie);
-        if (cookie.startsWith(name)) {
-            return cookie.split('=')[1];
+function getCookie(name: string): string | undefined | null {
+    const cookieString = document.cookie;
+    const cookiesArray = cookieString.split(';');
+
+    for (let cookie of cookiesArray) {
+        const [cookieName, cookieValue] = cookie.trim().split('=');
+        if (cookieName === name) {
+            return decodeURIComponent(cookieValue);
         }
     }
+
     return null;
 }
 

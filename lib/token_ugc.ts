@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
+import {cookies} from "next/headers";
+import {RequestCookie} from "next/dist/compiled/@edge-runtime/cookies";
 
-function checkTokenValidity(token: string | null, secret: string, type: string | null, router: any): boolean {
+function checkTokenValidity(token: string | undefined, secret: string, type: string | undefined, router: any): boolean {
     // if (!secret) {
     //     throw new Error('NEXT_PUBLIC_JWT_SECRET is not defined'); // Ensure secret is defined
     // }
@@ -21,15 +23,9 @@ function checkTokenValidity(token: string | null, secret: string, type: string |
     return false; // No token found
 }
 
-function getCookie(name: string): string | null {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.startsWith(name)) {
-            return cookie.split('=')[1];
-        }
-    }
-    return null; // Return null if cookie doesn't exist
+function getCookie(name: string): string | undefined {
+    const cookie = cookies().get(name);
+    return cookie?.value;
 }
 
 export { checkTokenValidity, getCookie };

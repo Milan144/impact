@@ -34,7 +34,7 @@ export default function Entreprise({ params }: { params: { id: string } }) {
         setLoading(false); // Charger les données après validation
       }
     };
-    validateToken();
+    validateToken().then(r => r);
   }, [router]);
 
   // Récupération des données de l'entreprise et des offres

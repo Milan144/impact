@@ -8,15 +8,12 @@ import TopBar from "../../components/topBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import Link from "next/link";
 import {
-  faHeart,
-  faPerson,
   faSort,
-  faStar,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { checkTokenValidity, getCookie } from "../../../../lib/token";
 import { useRouter } from "next/navigation";
+import { useCookies } from '../../../../lib/cookieContext';
 
 const App = () => {
   const router = useRouter();
@@ -24,7 +21,7 @@ const App = () => {
   const [archivedOffers, setArchivedOffers] = useState("");
   const [loading, setLoading] = useState(true);
 
-  interface offer {
+  interface Offer {
     id: string;
     name: string;
     description: string;
@@ -35,47 +32,60 @@ const App = () => {
     type: string;
   }
 
-  useEffect(() => {
-    const secret = process.env.NEXT_PUBLIC_JWT_SECRET;
-    console.log("Secret JWT récupéré :", secret);
-
-    if (!secret) {
-      console.log("Problème de récupération du secret JWT.");
-    }
-  }, []);
-
+  const { cookie } = useCookies(); // On récupère les cookies via le contexte
 
   useEffect(() => {
     const validateToken = async () => {
-      const token = getCookie("token");
-      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string;
-      const type = getCookie("type");
-      console.log("Token récupéré :", token, "Secret JWT récupéré :", secret);
+      try {
+        const parsedCookie = cookie ? JSON.parse(cookie) : null;
+        const token = parsedCookie ? parsedCookie['token'] : '';
+        const type = parsedCookie ? parsedCookie['type'] : '';
 
-      if (!token || !secret) {
-        console.log("Token ou secret manquant");
-        window.location.replace("/login");
-        return;
-      }
+        if (!token || !type) {
+            throw new Error('Paramètres manquants');
+        }
 
-      const isValid = await checkTokenValidity(token, secret, type, router);
-      if (!isValid) {
-        window.location.replace("/login");
-      } else {
-        setLoading(false);
+        if (type !== 'entreprise') {
+            throw new Error('Type de compte invalide');
+        }
+
+        // Appel de l'API pour valider le token
+        const response = await fetch("/api/validate-token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token, type }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erreur API: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.valid) {
+          router.push("/login"); // Redirige si le token est invalide
+        } else {
+          setLoading(false); // Si valide, arrête le chargement
+        }
+      } catch (error) {
+        console.error("Erreur lors de la validation du token :", error);
+        router.push("/login"); // Redirige en cas d'erreur
       }
     };
 
-    validateToken().then(r => r);
-  }, [router]);
-
+    if (cookie) {
+      validateToken();
+    }
+  }, [cookie, router]);
 
   useEffect(() => {
     if (!loading) {
       const fetchEntreprise = async () => {
         const responseOffres = await fetch(`/api/offersentreprise?id=1`);
         const responseArchivedOffres = await fetch(
-          `/api/offersentreprise?id=1&archived=true`
+            `/api/offersentreprise?id=1&archived=true`
         );
         const dataOffres = await responseOffres.json();
         const dataArchivedOffres = await responseArchivedOffres.json();
