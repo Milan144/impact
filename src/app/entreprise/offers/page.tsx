@@ -36,19 +36,39 @@ const App = () => {
   }
 
   useEffect(() => {
+    const secret = process.env.NEXT_PUBLIC_JWT_SECRET;
+    console.log("Secret JWT récupéré :", secret);
+
+    if (!secret) {
+      console.log("Problème de récupération du secret JWT.");
+    }
+  }, []);
+
+
+  useEffect(() => {
     const validateToken = async () => {
-      const token = getCookie("token"); // Retrieve token from cookies
-      const secret = process.env.JWT_SECRET as string; // Ensure the JWT_SECRET is available
-      const type = getCookie("type"); // Retrieve user type
-      const isValid = await checkTokenValidity(token, secret, type, router); // Pass router as an argument
+      const token = getCookie("token");
+      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string;
+      const type = getCookie("type");
+      console.log("Token récupéré :", token, "Secret JWT récupéré :", secret);
+
+      if (!token || !secret) {
+        console.log("Token ou secret manquant");
+        window.location.replace("/login");
+        return;
+      }
+
+      const isValid = await checkTokenValidity(token, secret, type, router);
       if (!isValid) {
         window.location.replace("/login");
       } else {
         setLoading(false);
       }
     };
-    validateToken();
-  }, []);
+
+    validateToken().then(r => r);
+  }, [router]);
+
 
   useEffect(() => {
     if (!loading) {

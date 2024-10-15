@@ -27,7 +27,7 @@ const App = () => {
   useEffect(() => {
     const validateToken = async () => {
       const token = getCookie("token"); // Retrieve token from cookies
-      const secret = process.env.JWT_SECRET as string; // Ensure the JWT_SECRET is available
+      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string; // Ensure the NEXT_PUBLIC_JWT_SECRET is available
       const type = getCookie("type"); // Retrieve user type
       const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
       if (!isValid) {

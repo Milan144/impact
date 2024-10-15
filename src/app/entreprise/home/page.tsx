@@ -45,7 +45,7 @@ export default function HomeEntreprise() {
                     Commencer l&apos;inscription
                   </button>
                 </Link>
-                <Link href="/login?type=ugc">
+                <Link href="/login?type=entreprise">
                   <button
                     className="border border-white py-2 px-4 text-white bg-transparent hover:bg-white hover:text-black transition duration-300"
                     style={{ flex: 1 }}

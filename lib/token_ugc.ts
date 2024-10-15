@@ -2,20 +2,18 @@ import jwt from 'jsonwebtoken';
 
 function checkTokenValidity(token: string | null, secret: string, type: string | null, router: any): boolean {
     // if (!secret) {
-    //     throw new Error('JWT_SECRET is not defined'); // Ensure secret is defined
+    //     throw new Error('NEXT_PUBLIC_JWT_SECRET is not defined'); // Ensure secret is defined
     // }
 
     if (token) {
         try {
-            // TODO: FIX
-            // jwt.verify(token, secret); // Verify the token using the secret
-            // // If token is valid, check user type
-            // if (type === 'ugc') {
-            //     return true; // Return true if user is UGC
-            // } else {
-            //     router.push('/entreprise/home'); // Redirect if not UGC
-            // }
-            return true;
+            jwt.verify(token, secret); // Verify the token using the secret
+            // If token is valid, check user type
+            if (type === 'ugc') {
+                return true; // Return true if user is UGC
+            } else {
+                router.push('/entreprise/home'); // Redirect if not UGC
+            }
         } catch (error) {
             return false; // Invalid token
         }
