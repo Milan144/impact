@@ -1,10 +1,9 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { NextResponse } from "next/server";
 
 const secret = process.env.JWT_SECRET as string;
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest) {
     // Vérifie que la méthode est POST
     if (req.method !== 'POST') {
         return NextResponse.json({ message: 'Méthode non autorisée' }, { status: 405 });
