@@ -37,7 +37,7 @@ export default function HomeEntreprise() {
                 >
                   Demander une démo
                 </button>
-                <Link href="/entreprise/offers">
+                <Link href="/entreprise/signup">
                   <button
                     className="border border-white py-2 px-4 text-white bg-transparent hover:bg-white hover:text-black transition duration-300"
                     style={{ flex: 1 }}

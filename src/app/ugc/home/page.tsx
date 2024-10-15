@@ -33,7 +33,7 @@ export default function HomeUgc() {
                             >
                                 Demander une démo
                             </button>
-                            <Link href="/ugc/offers">
+                            <Link href="/ugc/signup">
                                 <button
                                     className="border border-white py-2 px-4 text-white bg-transparent hover:bg-white hover:text-black transition duration-300"
                                     style={{ flex: 1 }} 
