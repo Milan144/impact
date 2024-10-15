@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
-import { checkTokenValidity, getCookie } from "../../../../lib/token"; // Import de la fonction de validation
 import { useRouter } from "next/navigation";
+import {validateToken} from "../../../../lib/validateToken";
+import { useCookies } from "../../../../lib/cookieContext";
+import { usePathname } from "next/navigation";
+
 const AddOfferPage = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -16,22 +19,14 @@ const AddOfferPage = () => {
   const [type, setType] = useState("");
   const [loading, setLoading] = useState(true); // Ajout de l'état de chargement pour le loader
   const router = useRouter();
-
+  const pathname = usePathname();
+  const { cookie } = useCookies();
   // Vérification si l'utilisateur est connecté
   useEffect(() => {
-    const validateToken = async () => {
-      const token = getCookie("token"); // Retrieve token from cookies
-      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string; // Ensure the NEXT_PUBLIC_JWT_SECRET is available
-      const type = getCookie("type"); // Retrieve user type
-      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
-      if (!isValid) {
-        router.replace("/login");
-      } else {
-        setLoading(false);
-      }
-    };
-    validateToken();
-  }, [router]);
+    if (cookie) {
+      validateToken(cookie, setLoading, router, pathname).then(r => r);
+    }
+  }, [cookie, router, pathname]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

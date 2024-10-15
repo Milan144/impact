@@ -6,13 +6,17 @@ import Image from "next/image";
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
 import { useRouter } from "next/navigation";
-import { checkTokenValidity, getCookie } from "../../../../../lib/token"; // Fonction de vérification du token
+import {validateToken} from "../../../../../lib/validateToken"; // Fonction de vérification du token
+import { useCookies } from "../../../../../lib/cookieContext";
+import { usePathname } from "next/navigation";
 
 export default function Entreprise({ params }: { params: { id: string } }) {
   const [entrepriseData, setEntrepriseData] = useState<Entreprise | null>(null);
   const [offres, setOffres] = useState("");
   const [loading, setLoading] = useState(true); // État de chargement
   const router = useRouter();
+  const { cookie } = useCookies();
+  const pathname = usePathname();
 
   interface Entreprise {
     name: string;
@@ -23,19 +27,10 @@ export default function Entreprise({ params }: { params: { id: string } }) {
 
   // Vérification du token utilisateur
   useEffect(() => {
-    const validateToken = async () => {
-      const token = getCookie("token"); // Retrieve token from cookies
-      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string; // Ensure the NEXT_PUBLIC_JWT_SECRET is available
-      const type = getCookie("type"); // Retrieve user type
-      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
-      if (!isValid) {
-        router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
-      } else {
-        setLoading(false); // Charger les données après validation
-      }
-    };
-    validateToken().then(r => r);
-  }, [router]);
+    if (cookie) {
+      validateToken(cookie, setLoading, router, pathname).then(r => r);
+    }
+  }, [cookie, router, pathname]);
 
   // Récupération des données de l'entreprise et des offres
   useEffect(() => {

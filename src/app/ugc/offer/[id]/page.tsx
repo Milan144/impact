@@ -11,14 +11,17 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { checkTokenValidity, getCookie } from "../../../../../lib/token_ugc"; // Importer la fonction de validation du token
+import { usePathname, useRouter } from "next/navigation";
+import {validateToken} from "../../../../../lib/validateToken"; // Importer la fonction de validation du token
+import { useCookies } from "../../../../../lib/cookieContext";
 
 export default function Offer({ params }: { params: { id: string } }) {
   const [offer, setOffer] = useState<offer | null>(null);
   const [loading, setLoading] = useState(true); // Pour gérer l'état du chargement
   const [validatingToken, setValidatingToken] = useState(true); // État de validation du token
   const router = useRouter();
+  const { cookie } = useCookies();
+  const pathname = usePathname();
 
   interface offer {
     name: string;
@@ -31,19 +34,10 @@ export default function Offer({ params }: { params: { id: string } }) {
 
   // Vérification du token
   useEffect(() => {
-    const validateToken = async () => {
-      const token = getCookie("token"); // Retrieve token from cookies
-      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string; // Ensure the NEXT_PUBLIC_JWT_SECRET is available
-      const type = getCookie("type"); // Retrieve user type
-      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
-      if (!isValid) {
-        router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
-      } else {
-        setValidatingToken(false); // Le token est valide, arrêter la validation
-      }
-    };
-    validateToken();
-  }, [router]);
+    if (cookie) {
+      validateToken(cookie, setLoading, router, pathname).then(r => r);
+    }
+  }, [cookie, router, pathname]);
 
   // Récupération des offres après validation du token
   useEffect(() => {

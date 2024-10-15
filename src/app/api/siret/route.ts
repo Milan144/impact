@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
   if (!siret) {
     return new NextResponse('SIRET manquant', { status: 400 });
   }
-  console.log('SIRET:', siret);
 
   try {
     const response = await axios.get(`https://api.insee.fr/entreprises/sirene/V3.11/siret/${siret}`, {

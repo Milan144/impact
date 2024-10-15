@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from "next/server";
 
-const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string;
+const secret = process.env.JWT_SECRET as string;
 
 export async function POST(req: NextApiRequest, res: NextApiResponse) {
     // Vérifie que la méthode est POST
@@ -13,6 +13,7 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
     // Lecture explicite du corps de la requête (body)
     let body;
     try {
+        // @ts-ignore
         body = await req.json();  // Utilise req.json() pour récupérer le corps
     } catch (error) {
         return NextResponse.json({ message: 'Erreur lors de la lecture du body' }, { status: 400 });

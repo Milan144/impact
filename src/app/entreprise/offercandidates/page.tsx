@@ -7,6 +7,7 @@ import Navbar from "../../components/navbar";
 import TopBar from "../../components/topBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   faArrowLeft,
   faHeart,
@@ -15,29 +16,23 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
-import { checkTokenValidity, getCookie } from "../../../../lib/token"; // Fonction de validation du token
+import { useCookies } from "../../../../lib/cookieContext";
+import { validateToken } from '../../../../lib/validateToken';
 
 const App = () => {
   const [offers, setOffers] = useState("");
   const [archivedOffers, setArchivedOffers] = useState("");
   const [loading, setLoading] = useState(true); // Ajout de l'état pour le chargement
   const router = useRouter();
+  const { cookie } = useCookies();
+  const pathname = usePathname();
 
   // Vérification du token de l'utilisateur
   useEffect(() => {
-    const validateToken = async () => {
-      const token = getCookie("token"); // Retrieve token from cookies
-      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string; // Ensure the NEXT_PUBLIC_JWT_SECRET is available
-      const type = getCookie("type"); // Retrieve user type
-      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
-      if (!isValid) {
-        router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
-      } else {
-        setLoading(false); // Arrêter le chargement si l'utilisateur est validé
-      }
-    };
-    validateToken();
-  }, [router]);
+    if (cookie) {
+      validateToken(cookie, setLoading, router, pathname).then(r => r);
+    }
+  }, [cookie, router, pathname]);
 
   // Fetching offers après vérification du token
   useEffect(() => {

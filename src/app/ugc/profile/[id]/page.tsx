@@ -5,14 +5,17 @@ import Head from "next/head";
 import Image from "next/image";
 import Navbar from "@/app/components/navbar";
 import TopBar from "@/app/components/topBar";
-import { useRouter } from "next/navigation";
-import { checkTokenValidity, getCookie } from "../../../../../lib/token_ugc"; // Importer la fonction pour vérifier le token
+import { useRouter, usePathname } from "next/navigation";
+import {validateToken} from "../../../../../lib/validateToken";
+import {useCookies} from "../../../../../lib/cookieContext"; // Importer la fonction pour vérifier le token
 
 export default function Ugc({ params }: { params: { id: string } }) {
   const [ugc, setUgc] = useState("");
   const [loading, setLoading] = useState(true);
   const [validatingToken, setValidatingToken] = useState(true); // État pour vérifier le token
   const router = useRouter();
+  const { cookie } = useCookies();
+  const pathname = usePathname();
 
   interface ugc {
     code: string;
@@ -22,19 +25,10 @@ export default function Ugc({ params }: { params: { id: string } }) {
 
   // Vérification du token
   useEffect(() => {
-    const validateToken = async () => {
-      const token = getCookie("token"); // Retrieve token from cookies
-      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string; // Ensure the NEXT_PUBLIC_JWT_SECRET is available
-      const type = getCookie("type"); // Retrieve user type
-      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
-      if (!isValid) {
-        router.replace("/login"); // Redirection vers la page de login si le token est invalide
-      } else {
-        setValidatingToken(false); // Le token est valide, on arrête la validation
-      }
-    };
-    validateToken();
-  }, [router]);
+    if (cookie) {
+      validateToken(cookie, setLoading, router, pathname).then(r => r);
+    }
+  }, [cookie, router, pathname]);
 
   // Récupération des données UGC après la validation du token
   useEffect(() => {

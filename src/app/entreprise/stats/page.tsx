@@ -6,28 +6,22 @@ import Navbar from "../../components/navbar";
 import TopBar from "../../components/topBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { checkTokenValidity, getCookie } from "../../../../lib/token"; // Import de la fonction de validation du token
+import { usePathname, useRouter } from "next/navigation";
+import { useCookies } from "../../../../lib/cookieContext";
+import { validateToken } from "../../../../lib/validateToken";
 
 const Stats = () => {
   const [loading, setLoading] = useState(true); // État de chargement pour le loader
   const router = useRouter();
+  const { cookie } = useCookies();
+  const pathname = usePathname();
 
   // Vérification si l'utilisateur est connecté
   useEffect(() => {
-    const validateToken = async () => {
-      const token = getCookie("token"); // Retrieve token from cookies
-      const secret = process.env.NEXT_PUBLIC_JWT_SECRET as string; // Ensure the NEXT_PUBLIC_JWT_SECRET is available
-      const type = getCookie("type"); // Retrieve user type
-      const isValid = checkTokenValidity(token, secret, type, router); // Pass router as an argument
-      if (!isValid) {
-        router.replace("/login"); // Redirection si l'utilisateur n'est pas connecté
-      } else {
-        setLoading(false); // Arrêter le chargement si le token est valide
-      }
-    };
-    validateToken();
-  }, [router]);
+    if (cookie) {
+      validateToken(cookie, setLoading, router, pathname).then(r => r);
+    }
+  }, [cookie, router, pathname]);
 
   // Affichage du loader pendant la vérification du token
   if (loading) {

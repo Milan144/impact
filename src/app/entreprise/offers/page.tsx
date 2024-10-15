@@ -7,6 +7,7 @@ import Navbar from "../../components/navbar";
 import TopBar from "../../components/topBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   faSort,
   faUser,
@@ -14,13 +15,14 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 import { useCookies } from '../../../../lib/cookieContext';
+import { validateToken } from '../../../../lib/validateToken';
 
 const App = () => {
   const router = useRouter();
   const [offers, setOffers] = useState("");
   const [archivedOffers, setArchivedOffers] = useState("");
   const [loading, setLoading] = useState(true);
-
+ const pathname = usePathname();
   interface Offer {
     id: string;
     name: string;
@@ -35,50 +37,10 @@ const App = () => {
   const { cookie } = useCookies(); // On récupère les cookies via le contexte
 
   useEffect(() => {
-    const validateToken = async () => {
-      try {
-        const parsedCookie = cookie ? JSON.parse(cookie) : null;
-        const token = parsedCookie ? parsedCookie['token'] : '';
-        const type = parsedCookie ? parsedCookie['type'] : '';
-
-        if (!token || !type) {
-            throw new Error('Paramètres manquants');
-        }
-
-        if (type !== 'entreprise') {
-            throw new Error('Type de compte invalide');
-        }
-
-        // Appel de l'API pour valider le token
-        const response = await fetch("/api/validate-token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token, type }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Erreur API: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        if (!data.valid) {
-          router.push("/login"); // Redirige si le token est invalide
-        } else {
-          setLoading(false); // Si valide, arrête le chargement
-        }
-      } catch (error) {
-        console.error("Erreur lors de la validation du token :", error);
-        router.push("/login"); // Redirige en cas d'erreur
-      }
-    };
-
     if (cookie) {
-      validateToken();
+      validateToken(cookie, setLoading, router, pathname).then(r => r);
     }
-  }, [cookie, router]);
+  }, [cookie, router, pathname]);
 
   useEffect(() => {
     if (!loading) {
